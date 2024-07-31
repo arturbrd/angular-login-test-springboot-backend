@@ -43,10 +43,22 @@ public class LoginController {
         tokenCookie.setMaxAge(5 * 60);
 
         response.addCookie(tokenCookie);
-
-        return ResponseEntity.ok(authResponse);
+        LoginResponse resp = new LoginResponse(authResponse.getName(), authResponse.getAuthorities().iterator().next().toString());
+        return ResponseEntity.ok(resp);
 
     }
 
     public record LoginRequest(String username, String password) {}
+    public record LoginResponse(String username, String role) {}
+
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        Cookie tokenCookie = new Cookie("accessToken", "");
+        tokenCookie.setHttpOnly(true);
+        tokenCookie.setSecure(true);
+        tokenCookie.setPath("/");
+        tokenCookie.setMaxAge(0);
+        response.addCookie(tokenCookie);
+        return ResponseEntity.ok(null);
+    }
 }
