@@ -19,7 +19,6 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-    private final JwtUtil jwtUtil;
     private final UserEntityService userEntityService;
 
     @Override
@@ -40,11 +39,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        username = jwtUtil.extractUsername(token);
+        username = JwtUtil.extractUsername(token);
 
         if(username != null) {
             UserDetails userDetails = userEntityService.loadUserByUsername(username);
-            if (jwtUtil.validateToken(token, userDetails)) {
+            if (JwtUtil.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);

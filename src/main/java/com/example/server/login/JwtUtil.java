@@ -18,7 +18,7 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
     private static final SecretKey SECRET = Jwts.SIG.HS256.key().build();
-    private static final long EXPIRATION_TIME = 300_000; // 5 minut
+    public static final long EXPIRATION_TIME = 1000 * 10; // 5 minut
 
     public static String generateToken(String username) {
         return Jwts.builder()
@@ -36,20 +36,24 @@ public class JwtUtil {
                 .getPayload();
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public static <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    public String extractUsername(String token) {
+    public static String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private boolean isTokenExpired(String token) {
+    public static Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    private static boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
-    public boolean validateToken(String token, UserDetails userDetails) {
+    public static boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
