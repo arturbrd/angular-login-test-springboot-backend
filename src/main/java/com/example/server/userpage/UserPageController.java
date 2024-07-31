@@ -12,7 +12,7 @@ import java.util.List;
 public class UserPageController {
     private final UserPageService service;
 
-    @GetMapping("/api/user-page")
+    @GetMapping("/api/user-data")
     public ResponseEntity<?> getUserResources() {
         List<UserResourceEntity> resources = service.getEntities();
         return ResponseEntity.ok(resources);
