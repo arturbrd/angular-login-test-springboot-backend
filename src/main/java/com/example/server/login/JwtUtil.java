@@ -6,6 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.KeyBuilder;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.MacAlgorithm;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -18,12 +20,26 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
     private static final SecretKey SECRET = Jwts.SIG.HS256.key().build();
-    public static final long EXPIRATION_TIME = 1000 * 10; // 5 minut
+    public static final long EXPIRATION_TIME = 1000 * 15; // 5 minut
 
-    public static String generateToken(String username) {
+    public static String getTokenFromCookie(HttpServletRequest request) {
+        String token = null;
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null) {
+            for(Cookie cookie : cookies) {
+                if(cookie.getName().equals("accessToken")) {
+                    token = cookie.getValue();
+                }
+            }
+        }
+        return token;
+    }
+
+    public static String generateToken(String username, String role) {
         return Jwts.builder()
                 .subject(username)
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .claim("role", role)
                 .signWith(SECRET)
                 .compact();
     }
@@ -47,6 +63,10 @@ public class JwtUtil {
 
     public static Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }
+
+    public static String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     private static boolean isTokenExpired(String token) {
