@@ -23,10 +23,10 @@ public class UserEntityService implements UserDetailsService {
         logger.debug("Entering in loadUserByUsername Method...");
         UserEntity user = userRepository.findByUsername(username);
         if (user == null) {
-            logger.error("Username not found: " + username);
+            logger.error("Username not found: {}", username);
             throw new UsernameNotFoundException("user not found");
         }
-        logger.info("User found: " + username);
+        logger.info("User found: {}", username);
         return user;
     }
 
